@@ -17,6 +17,10 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - WORKSPACE_PATH=/workspace
       - MCP_SERVERS_CONFIG=/app/config/servers.json
+      # API Provider configuration (supports Anthropic direct or OpenRouter)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-}
+      - ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
     ports:
       - "8080:8080"  # Optional: for web-based MCP servers
     logging:
