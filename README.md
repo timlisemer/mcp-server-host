@@ -51,6 +51,7 @@ mcp-server-host/
 | mcp-nixos | **ENABLED** | Python | NixOS package search and configuration |
 | tailwind-svelte-assistant | **ENABLED** | Node.js | Tailwind CSS and SvelteKit documentation |
 | context7 | **ENABLED** | Node.js | Up-to-date code documentation for LLMs |
+| agent-framework | **ENABLED** | Node.js | AI-powered code quality agents: check, confirm, commit |
 
 ## Currently Running Servers
 
@@ -78,6 +79,17 @@ mcp-server-host/
   match = "when the user requests code examples, setup or configuration steps, or library/API documentation"
   tool  = "context7"
   ```
+
+### 4. Agent Framework (Node.js) - ENABLED
+- **Type**: Node.js MCP server
+- **Capabilities**: AI-powered code quality gates, automated commit messages, code review
+- **Repository**: [timlisemer/agent-framework](https://github.com/timlisemer/agent-framework)
+- **Runtime**: Node.js with TypeScript
+- **Tools Provided**:
+  - `check` - Run linting and make check, return summarized results with recommendations
+  - `confirm` - Binary code quality gate (returns CONFIRMED or DECLINED)
+  - `commit` - Generate minimal commit message and execute git commit
+- **Note**: Requires `ANTHROPIC_API_KEY` environment variable (see `.env.example`)
 
 ### Disabled Servers
 
@@ -134,6 +146,14 @@ Add this to your Claude Code settings to use MCP servers running on your remote 
         "docker", "exec", "mcp-server-host",
         "npx", "-y", "@upstash/context7-mcp"
       ]
+    },
+    "agent-framework": {
+      "command": "ssh",
+      "args": [
+        "user@your-vps-ip",
+        "docker", "exec", "-i", "mcp-server-host",
+        "node", "/app/servers/agent-framework/dist/mcp/server.js"
+      ]
     }
   }
 }
@@ -147,6 +167,26 @@ Add this to your Claude Code settings to use MCP servers running on your remote 
 2. **Docker installed** on the VPS
 3. **User has docker permissions** (user in docker group or sudo access)
 4. **Container running** via `make start` on the VPS
+
+### Claude Code CLI Method
+
+You can also add MCP servers using the Claude Code CLI:
+
+```bash
+# Add agent-framework
+claude mcp add agent-framework --scope user -- ssh tim-server "docker exec -i mcp-server-host node /app/servers/agent-framework/dist/mcp/server.js"
+
+# Add nixos-search
+claude mcp add nixos-search --scope user -- ssh tim-server "docker exec -i mcp-server-host /app/servers/mcp-nixos/venv/bin/python3 -m mcp_nixos.server"
+
+# Add tailwind-svelte
+claude mcp add tailwind-svelte --scope user -- ssh tim-server "docker exec -i mcp-server-host node /app/servers/tailwind-svelte-assistant/.smithery/index.cjs"
+
+# Add context7
+claude mcp add context7 --scope user -- ssh tim-server "docker exec -i mcp-server-host npx -y @upstash/context7-mcp"
+```
+
+**Note**: Replace `tim-server` with your SSH host alias or `user@your-vps-ip`.
 
 ## Configuration
 
@@ -176,6 +216,11 @@ The `config/servers.json` file controls which servers are active. Set `"enabled"
       "enabled": true,   // Currently ENABLED
       "type": "node",
       "description": "Up-to-date code documentation for LLMs"
+    },
+    "agent-framework": {
+      "enabled": true,   // Currently ENABLED
+      "type": "node",
+      "description": "AI-powered code quality agents: check, confirm, commit"
     }
   }
 }
@@ -278,6 +323,9 @@ docker exec mcp-server-host /root/go/bin/mcp-language-server --help
 
 # Test NixOS server
 docker exec mcp-server-host /app/servers/mcp-nixos/venv/bin/python3 -m mcp_nixos.server --help
+
+# Test agent-framework server
+docker exec mcp-server-host node /app/servers/agent-framework/dist/mcp/server.js --help
 ```
 
 ### Restart Failed Servers
@@ -285,6 +333,7 @@ docker exec mcp-server-host /app/servers/mcp-nixos/venv/bin/python3 -m mcp_nixos
 # Restart specific server
 docker exec mcp-server-host supervisorctl restart mcp-mcp-nixos
 docker exec mcp-server-host supervisorctl restart mcp-mcp-language-server
+docker exec mcp-server-host supervisorctl restart mcp-agent-framework
 
 # Restart all servers
 docker exec mcp-server-host supervisorctl restart all
