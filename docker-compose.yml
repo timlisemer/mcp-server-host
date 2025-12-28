@@ -4,9 +4,6 @@ services:
     image: mcp-toolbox:latest
     container_name: mcp-toolbox
     restart: unless-stopped
-    volumes:
-      - ./workspace:/workspace:rw
-      - ./config:/app/config:ro
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
     logging:

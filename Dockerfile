@@ -32,7 +32,7 @@ RUN rustup component add rust-src rust-analyzer
 
 # Create directory structure
 WORKDIR /app
-RUN mkdir -p /app/tools /app/config /workspace
+RUN mkdir -p /app/tools /app/config
 
 # Copy configuration and build script
 COPY config/ /app/config/
@@ -41,9 +41,6 @@ RUN chmod +x /app/scripts/*.sh
 
 # Pre-build all MCP tools
 RUN /app/scripts/install.sh
-
-# Workspace for projects
-VOLUME ["/workspace"]
 
 # Stay alive for docker exec access - tools are invoked on-demand
 CMD ["tail", "-f", "/dev/null"]
