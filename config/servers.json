@@ -2,6 +2,7 @@
   "tools": {
     "mcp-nixos": {
       "enabled": true,
+      "docker_volume": false,
       "type": "python",
       "description": "NixOS package and configuration search MCP server",
       "repository": "https://github.com/utensils/mcp-nixos",
@@ -16,6 +17,7 @@
     },
     "tailwind-svelte-assistant": {
       "enabled": true,
+      "docker_volume": false,
       "type": "node",
       "description": "Tailwind CSS and SvelteKit documentation and code snippets MCP server",
       "repository": "https://github.com/CaullenOmdahl/Tailwind-Svelte-Assistant",
@@ -36,6 +38,7 @@
     },
     "context7": {
       "enabled": true,
+      "docker_volume": false,
       "type": "node",
       "description": "Up-to-date code documentation for LLMs and AI code editors",
       "repository": "",
@@ -55,6 +58,7 @@
     },
     "agent-framework": {
       "enabled": true,
+      "docker_volume": true,
       "type": "node",
       "description": "AI-powered code quality agents: check, confirm, commit",
       "repository": "https://github.com/timlisemer/agent-framework",

@@ -32,15 +32,22 @@ RUN rustup component add rust-src rust-analyzer
 
 # Create directory structure
 WORKDIR /app
-RUN mkdir -p /app/tools /app/config
+RUN mkdir -p /app/tools /app/tools-builtin /app/servers /app/config
 
-# Copy configuration and build script
+# Copy configuration and build scripts
 COPY config/ /app/config/
 COPY scripts/install.sh /app/scripts/
+COPY scripts/entrypoint.sh /app/scripts/
 RUN chmod +x /app/scripts/*.sh
 
 # Pre-build all MCP tools
 RUN /app/scripts/install.sh
+
+# Declare volume for persistent server data
+VOLUME /app/servers
+
+# Use entrypoint for runtime initialization
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]
 
 # Stay alive for docker exec access - tools are invoked on-demand
 CMD ["tail", "-f", "/dev/null"]

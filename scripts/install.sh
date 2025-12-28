@@ -113,3 +113,20 @@ echo ""
 echo "All MCP tools built successfully!"
 echo "Tools directory: $TOOLS_DIR"
 ls -la "$TOOLS_DIR" 2>/dev/null || true
+
+# Move volume-enabled tools to builtin directory for runtime initialization
+echo ""
+echo "Processing volume-enabled tools..."
+BUILTIN_DIR="/app/tools-builtin"
+mkdir -p "$BUILTIN_DIR"
+
+volume_tools=$(jq -r '.tools | to_entries[] | select(.value.enabled == true and .value.docker_volume == true) | .key' "$CONFIG_FILE")
+
+while IFS= read -r name; do
+    if [ -n "$name" ] && [ -d "$TOOLS_DIR/$name" ]; then
+        echo "  Moving $name to builtin directory for volume support..."
+        mv "$TOOLS_DIR/$name" "$BUILTIN_DIR/$name"
+    fi
+done <<< "$volume_tools"
+
+echo "Volume-enabled tools prepared for runtime initialization"
