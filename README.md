@@ -16,12 +16,12 @@ The container stays running so tools can be invoked via `docker exec`. MCP tools
 
 ## Available Tools
 
-| Tool | Type | Description |
-|------|------|-------------|
-| mcp-nixos | Python | NixOS package and configuration search |
-| tailwind-svelte-assistant | Node.js | Tailwind CSS and SvelteKit documentation |
-| context7 | Node.js | Up-to-date code documentation for any library |
-| agent-framework | Node.js | AI-powered code quality: check, confirm, commit |
+| Tool                      | Type    | Description                                     |
+| ------------------------- | ------- | ----------------------------------------------- |
+| mcp-nixos                 | Python  | NixOS package and configuration search          |
+| tailwind-svelte-assistant | Node.js | Tailwind CSS and SvelteKit documentation        |
+| context7                  | Node.js | Up-to-date code documentation for any library   |
+| agent-framework           | Node.js | AI-powered code quality: check, confirm, commit |
 
 ## Quick Start
 
@@ -43,7 +43,7 @@ Register the pre-built tools with Claude Code using `claude mcp add`:
 
 ```bash
 claude mcp add nixos-search -- docker exec -i mcp-toolbox /app/tools/mcp-nixos/venv/bin/python3 -m mcp_nixos.server
-claude mcp add tailwind-svelte -- docker exec -i mcp-toolbox node /app/tools/tailwind-svelte-assistant/.smithery/index.cjs
+claude mcp add tailwind-svelte --scope user -- docker exec -i mcp-toolbox node /app/tools/tailwind-svelte-assistant/dist/index.js
 claude mcp add context7 -- docker exec -i mcp-toolbox npx -y @upstash/context7-mcp
 claude mcp add agent-framework -- docker exec -i mcp-toolbox node /app/tools/agent-framework/dist/mcp/server.js
 ```
@@ -55,12 +55,25 @@ Or add to your Claude Code MCP settings (`~/.claude/settings.json`):
   "mcpServers": {
     "nixos-search": {
       "command": "docker",
-      "args": ["exec", "-i", "mcp-toolbox",
-               "/app/tools/mcp-nixos/venv/bin/python3", "-m", "mcp_nixos.server"]
+      "args": [
+        "exec",
+        "-i",
+        "mcp-toolbox",
+        "/app/tools/mcp-nixos/venv/bin/python3",
+        "-m",
+        "mcp_nixos.server"
+      ]
     },
     "context7": {
       "command": "docker",
-      "args": ["exec", "-i", "mcp-toolbox", "npx", "-y", "@upstash/context7-mcp"]
+      "args": [
+        "exec",
+        "-i",
+        "mcp-toolbox",
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
+      ]
     }
   }
 }
@@ -148,11 +161,13 @@ make rebuild  # Clean rebuild
 The `agent-framework` tool requires API credentials. Two options are supported:
 
 **Option A: Direct Anthropic API**
+
 ```bash
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 **Option B: OpenRouter (Anthropic-compatible)**
+
 ```bash
 ANTHROPIC_API_KEY=           # Leave empty
 ANTHROPIC_BASE_URL=https://openrouter.ai/api
@@ -183,4 +198,3 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | \
 ```bash
 docker exec mcp-toolbox ls -la /app/tools/
 ```
-

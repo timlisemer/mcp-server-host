@@ -69,10 +69,7 @@ while IFS= read -r tool_json; do
             ;;
         "node")
             if [ -f "package.json" ]; then
-                npm install 2>/dev/null || echo "  Dependencies skipped"
-                if [[ "$build_cmd" == *"npm run build"* ]] && [ -f "package.json" ]; then
-                    grep -q '"build"' package.json && eval "$build_cmd" || echo "  Build skipped"
-                fi
+                eval "$build_cmd" || echo "  Build failed"
             fi
             ;;
         "python")
