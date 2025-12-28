@@ -26,12 +26,11 @@ if [ -d "$BUILTIN_DIR" ]; then
         # Ensure the server directory exists in the mounted volume
         mkdir -p "$server_dir"
 
-        # Check if first-run (volume is empty or missing key files)
-        if [ -d "$builtin_dir" ] && [ ! -f "$server_dir/.initialized" ]; then
-            echo "  First run detected, copying built artifacts to volume..."
-            cp -r "$builtin_dir"/* "$server_dir"/ 2>/dev/null || true
-            touch "$server_dir/.initialized"
-            echo "  Initialization complete"
+        # Clear and copy fresh artifacts (volumes are ephemeral, recreated every start)
+        if [ -d "$builtin_dir" ]; then
+            echo "  Refreshing volume with fresh artifacts..."
+            rm -rf "$server_dir"/*
+            cp -r "$builtin_dir"/* "$server_dir"/
         fi
 
         # Create symlink from tools directory to servers directory
