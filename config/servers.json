@@ -20,7 +20,7 @@
       "description": "Tailwind CSS and SvelteKit documentation and code snippets MCP server",
       "repository": "https://github.com/CaullenOmdahl/Tailwind-Svelte-Assistant",
       "build_command": "npm install && npx tsc",
-      "binary_path": "dist/index.js",
+      "binary_path": "run.mjs",
       "install_path": "",
       "capabilities": [
         "svelte",
@@ -61,12 +61,7 @@
       "build_command": "npm install && npm run build",
       "binary_path": "dist/mcp/server.js",
       "install_path": "",
-      "capabilities": [
-        "code-quality",
-        "linting",
-        "git-commit",
-        "code-review"
-      ],
+      "capabilities": ["code-quality", "linting", "git-commit", "code-review"],
       "default_args": [],
       "environment": {
         "NODE_ENV": "production"

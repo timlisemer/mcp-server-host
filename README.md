@@ -43,7 +43,7 @@ Register the pre-built tools with Claude Code using `claude mcp add`:
 
 ```bash
 claude mcp add nixos-search -- docker exec -i mcp-toolbox /app/tools/mcp-nixos/venv/bin/python3 -m mcp_nixos.server
-claude mcp add tailwind-svelte --scope user -- docker exec -i mcp-toolbox node /app/tools/tailwind-svelte-assistant/dist/index.js
+claude mcp add tailwind-svelte --scope user -- docker exec -i mcp-toolbox node /app/tools/tailwind-svelte-assistant/run.mjs
 claude mcp add context7 -- docker exec -i mcp-toolbox npx -y @upstash/context7-mcp
 claude mcp add agent-framework -- docker exec -i mcp-toolbox node /app/tools/agent-framework/dist/mcp/server.js
 ```

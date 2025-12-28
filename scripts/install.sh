@@ -41,61 +41,73 @@ while IFS= read -r tool_json; do
         echo "  Info: No valid repository URL, creating placeholder for $name"
         # Create a placeholder for tools without real repos
         case "$type" in
-            "node")
-                echo '{"name": "'$name'", "version": "1.0.0"}' > package.json
-                echo 'console.log("MCP Tool: '$name'");' > index.js
-                ;;
-            "go")
-                echo 'package main; import "fmt"; func main() { fmt.Println("MCP Tool: '$name'") }' > main.go
-                ;;
-            "rust")
-                cargo init --name "$name" 2>/dev/null || true
-                ;;
+        "node")
+            echo '{"name": "'$name'", "version": "1.0.0"}' >package.json
+            echo 'console.log("MCP Tool: '$name'");' >index.js
+            ;;
+        "go")
+            echo 'package main; import "fmt"; func main() { fmt.Println("MCP Tool: '$name'") }' >main.go
+            ;;
+        "rust")
+            cargo init --name "$name" 2>/dev/null || true
+            ;;
         esac
     fi
 
     # Build based on type
     echo "  Compiling..."
     case "$type" in
-        "go")
-            if [ -f "go.mod" ] || [ -f "main.go" ]; then
-                eval "$build_cmd" || echo "  Build skipped (placeholder)"
-            fi
-            ;;
-        "rust")
-            if [ -f "Cargo.toml" ]; then
-                eval "$build_cmd" || echo "  Build skipped (placeholder)"
-            fi
-            ;;
-        "node")
-            if [ -f "package.json" ]; then
-                eval "$build_cmd" || echo "  Build failed"
-            fi
-            ;;
-        "python")
-            # Create and activate virtual environment for this tool
-            echo "  Creating virtual environment..."
-            python3 -m venv venv
-            source venv/bin/activate
+    "go")
+        if [ -f "go.mod" ] || [ -f "main.go" ]; then
+            eval "$build_cmd" || echo "  Build skipped (placeholder)"
+        fi
+        ;;
+    "rust")
+        if [ -f "Cargo.toml" ]; then
+            eval "$build_cmd" || echo "  Build skipped (placeholder)"
+        fi
+        ;;
+    "node")
+        if [ -f "package.json" ]; then
+            eval "$build_cmd" || echo "  Build failed"
+        fi
+        # Create stdio wrapper for Smithery-based servers
+        if [ "$name" = "tailwind-svelte-assistant" ]; then
+            echo "  Creating stdio runner wrapper..."
+            cat >run.mjs <<'RUNNER_EOF'
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import createServer from "./dist/index.js";
 
-            if [ -f "requirements.txt" ]; then
-                pip install -r requirements.txt || echo "  Dependencies skipped"
-            fi
-            # Execute the build command for Python tools (e.g., pip install)
-            if [[ "$build_cmd" == pip* ]]; then
-                # Replace pip3 with pip in venv
-                venv_build_cmd="${build_cmd/pip3/pip}"
-                eval "$venv_build_cmd" || echo "  Build command failed: $venv_build_cmd"
-            elif [ -f "setup.py" ] || [ -f "pyproject.toml" ]; then
-                pip install -e . || echo "  Local install failed"
-            fi
-            deactivate
-            ;;
+const server = createServer();
+const transport = new StdioServerTransport();
+await server.connect(transport);
+RUNNER_EOF
+        fi
+        ;;
+    "python")
+        # Create and activate virtual environment for this tool
+        echo "  Creating virtual environment..."
+        python3 -m venv venv
+        source venv/bin/activate
+
+        if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt || echo "  Dependencies skipped"
+        fi
+        # Execute the build command for Python tools (e.g., pip install)
+        if [[ "$build_cmd" == pip* ]]; then
+            # Replace pip3 with pip in venv
+            venv_build_cmd="${build_cmd/pip3/pip}"
+            eval "$venv_build_cmd" || echo "  Build command failed: $venv_build_cmd"
+        elif [ -f "setup.py" ] || [ -f "pyproject.toml" ]; then
+            pip install -e . || echo "  Local install failed"
+        fi
+        deactivate
+        ;;
     esac
 
     echo "  Build complete for $name"
 
-done <<< "$tools"
+done <<<"$tools"
 
 echo ""
 echo "All MCP tools built successfully!"
